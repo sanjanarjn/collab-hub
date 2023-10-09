@@ -1,0 +1,14 @@
+package com.nasa.collab.hub.controllers;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class WebhookController {
+
+    @PostMapping("/webhooks")
+    public void handleGithubWebhookEvent(@RequestBody String payload) {
+        System.out.println(payload);
+    }
+}
