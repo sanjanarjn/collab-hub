@@ -1,5 +1,6 @@
 package com.nasa.collab.hub.github;
 
+import com.nasa.collab.hub.cache.CacheService;
 import com.nasa.collab.hub.github.sdk.GithubIssue;
 import com.nasa.collab.hub.github.sdk.GithubRepository;
 import com.nasa.collab.hub.github.sdk.IssueLabelType;
@@ -28,10 +29,23 @@ public class GithubDataService {
     @Autowired
     private PreferenceService preferenceService;
 
+    @Autowired
+    private CacheService cacheService;
+
     public List<GithubRepository> fetchRepositoriesBasedOnPreference(long userId) throws Exception {
 
         Map<String, String> queryParams = getQueryParamsBasedOnUserPreference(userId, Arrays.stream(PreferenceType.values()).collect(Collectors.toSet()));
-        return githubIntegrationService.searchForRepositories(queryParams);
+
+        List<GithubRepository> reposForUser = Collections.EMPTY_LIST;
+        Optional<List<GithubRepository>> reposForUserFromCache = cacheService.getRepositoriesForUserFromCache(userId);
+        if (reposForUserFromCache.isPresent()) {
+            reposForUser = reposForUserFromCache.get();
+        }
+        else {
+            reposForUser = githubIntegrationService.searchForRepositories(queryParams);
+            cacheService.putRepositoriesForUserInCache(userId, reposForUser);
+        }
+        return reposForUser;
     }
 
     public List<GithubIssue> fetchIssuesBasedOnPreference(long userId, Optional<String> issueLabelOptional) throws Exception {
@@ -49,7 +63,17 @@ public class GithubDataService {
         issueSearchQuery.append(" ").append("state:open");
 
         queryParams.put("q", issueSearchQuery.toString());
-        return githubIntegrationService.searchForIssues(queryParams);
+
+        List<GithubIssue> issuesForUser = Collections.EMPTY_LIST;
+        Optional<List<GithubIssue>> issuesForUserFromCache = cacheService.getIssuesForUserFromCache(userId);
+        if (issuesForUserFromCache.isPresent()) {
+            issuesForUser = issuesForUserFromCache.get();
+        }
+        else {
+            issuesForUser = githubIntegrationService.searchForIssues(queryParams);
+            cacheService.putIssuesForUserInCache(userId, issuesForUser);
+        }
+        return issuesForUser;
     }
 
     private Map<String, String> getQueryParamsBasedOnUserPreference(long userId, Set<PreferenceType> preferenceTypesToConsider) throws Exception {
@@ -88,7 +112,6 @@ public class GithubDataService {
             String fieldQuery = preferenceType.getFields().stream().map(field -> "in:" + field).collect(Collectors.joining(" "));
             searchAndFieldQueries.add("(" + searchQuery + " " + fieldQuery + ")");
         }
-
         return String.join(" OR ", searchAndFieldQueries);
     }
 }

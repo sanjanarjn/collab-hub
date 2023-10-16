@@ -69,6 +69,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+
+
 
 	</dependencies>
 
