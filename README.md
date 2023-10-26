@@ -1,5 +1,7 @@
 # collab-hub
-Collab-Hub is an iOS app designed to simplify the open-source journey for beginners. It empowers users to customize their exploration by selecting:
+Collab-Hub is an iOS app designed to simplify the open-source journey for beginners. This repository contains the source code for the backend APIs.
+
+It empowers users to customize their exploration by selecting:
 - Interest Area: Choose from various domains like science, commerce, etc.
 - Technical Focus: Define your preferred area, such as backend, frontend, mobile, web, etc.
 - Technology Stack: Specify your preferred programming languages and frameworks.
